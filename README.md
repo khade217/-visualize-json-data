@@ -38,7 +38,7 @@ project-folder/
 ```bash
 git clone
 https://github.com/khade217/-visualize-json-data.git
-cd 
+
 ```
 
 ### 2. Open the Project
@@ -115,7 +115,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ---
 
-Made with ❤️ by [Your Name](https://github.com/your-username).  
+Made with ❤️ by [khade217](https://github.com/khade217).  
 Feel free to reach out if you have any questions! 📧
 
 ---
