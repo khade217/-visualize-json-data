@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Table</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Link to the CSS file -->
+</head>
+<body>
+    <div id="table-container"></div>
+
+    <script>
+        // Function to fetch JSON data
+        async function fetchData() {
+            const response = await fetch('data.json'); // Load the JSON file
+            const data = await response.json(); // Parse the JSON data
+            return data;
+        }
+
+        // Function to create the table
+        function createTable(data) {
+            const table = document.createElement('table');
+            if (data.tableSettings.roundedCorners) {
+                table.classList.add('rounded-corners');
+            }
+
+            // Create header row
+            const headerRow = document.createElement('tr');
+            data.headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                if (data.tableSettings.uppercaseHeader) {
+                    th.textContent = headerText.toUpperCase();
+                }
+                headerRow.appendChild(th);
+            });
+            table.appendChild(headerRow);
+
+            // Create body rows
+            data.rows.forEach(rowData => {
+                const row = document.createElement('tr');
+                data.headers.forEach(header => {
+                    const td = document.createElement('td');
+                    td.textContent = rowData[header] || ''; // Use empty string if data is missing
+                    row.appendChild(td);
+                });
+                table.appendChild(row);
+            });
+
+            return table;
+        }
+
+        // Load data and render the table
+        fetchData().then(data => {
+            const tableContainer = document.getElementById('table-container');
+            tableContainer.appendChild(createTable(data));
+        });
+    </script>
+</body>
+</html>

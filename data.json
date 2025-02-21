@@ -1,0 +1,109 @@
+{
+    "tableSettings": {
+        "columns": 5,
+        "rows": 11,
+        "border": true,
+        "uppercaseHeader": true,
+        "lineHeight": 3,
+        "lineHeightHeader": 9,
+        "textCenter": true,
+        "textCenterHeader": true,
+        "roundedCorners": true,
+        "tableColumnWidth": "table-fixed",
+        "fixedWidth": false,
+        "tableWidth": 11,
+        "fontSize": 4,
+        "boldHeader": false,
+        "boldBody": false,
+        "headerBackgroundColor": "#0f58e8",
+        "headerTextColor": "#e5e7eb",
+        "bodyBackgroundColor": "#FFFFFF",
+        "bodyTextColor": "#6b7280"
+    },
+    "headers": [
+        "Product-ID",
+        "Description",
+        "Price",
+        "Related Product-ID",
+        "Related Description"
+    ],
+    "rows": [
+        {
+            "Product-ID": "YY-853581",
+            "Description": "Notebook Basic",
+            "Price": "$299",
+            "Related Product-ID": "YY-853599",
+            "Related Description": "Notebook Pro"
+        },
+        {
+            "Product-ID": "YY-853590",
+            "Description": "Notebook Advanced",
+            "Price": "$499",
+            "Related Product-ID": "YY-853601",
+            "Related Description": "Notebook Premium"
+        },
+        {
+            "Product-ID": "YY-853600",
+            "Description": "Notebook Pro",
+            "Price": "$849",
+            "Related Product-ID": "YY-853581",
+            "Related Description": "Notebook Basic"
+        },
+        {
+            "Product-ID": "YY-853610",
+            "Description": "Gaming Notebook",
+            "Price": "$1299",
+            "Related Product-ID": "YY-853620",
+            "Related Description": "Gaming Notebook Pro"
+        },
+        {
+            "Product-ID": "YY-853620",
+            "Description": "Gaming Notebook Pro",
+            "Price": "$1599",
+            "Related Product-ID": "YY-853610",
+            "Related Description": "Gaming Notebook"
+        },
+        {
+            "Product-ID": "YY-853630",
+            "Description": "Business Notebook",
+            "Price": "$799",
+            "Related Product-ID": "",
+            "Related Description": ""
+        },
+        {
+            "Product-ID": "YY-853640",
+            "Description": "Student Notebook",
+            "Price": "$399",
+            "Related Product-ID": "",
+            "Related Description": ""
+        },
+        {
+            "Product-ID": "YY-853650",
+            "Description": "Ultra-thin Notebook",
+            "Price": "$899",
+            "Related Product-ID": "YY-853651",
+            "Related Description": "Ultra-thin Notebook Pro"
+        },
+        {
+            "Product-ID": "YY-853651",
+            "Description": "Ultra-thin Notebook Pro",
+            "Price": "$1099",
+            "Related Product-ID": "YY-853650",
+            "Related Description": "Ultra-thin Notebook"
+        },
+        {
+            "Product-ID": "YY-853660",
+            "Description": "Convertible Notebook",
+            "Price": "$999",
+            "Related Product-ID": "",
+            "Related Description": ""
+        },
+        {
+            "Product-ID": "YY-853670",
+            "Description": "Travel Notebook",
+            "Price": "$499",
+            "Related Product-ID": "",
+            "Related Description": ""
+        }
+    ]
+}
