@@ -3,57 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product Table</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to the CSS file -->
+    <title>Universal JSON Data Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="table-container"></div>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Universal JSON Data Visualizer</h1>
+            <p>Convert any JSON data into interactive tables</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-controls">
+                <div class="control-group">
+                    <label for="jsonInput">Paste your JSON data:</label>
+                    <textarea id="jsonInput" placeholder="Paste JSON array or object here..."></textarea>
+                </div>
+
+                <div class="control-group">
+                    <label for="fileInput">Or upload a JSON file:</label>
+                    <input type="file" id="fileInput" accept=".json">
+                </div>
+
+                <div class="button-group">
+                    <button id="visualizeBtn" class="btn btn-primary">Visualize Data</button>
+                    <button id="clearBtn" class="btn btn-secondary">Clear All</button>
+                    <button id="downloadBtn" class="btn btn-download" style="display:none;">Download as CSV</button>
+                </div>
+
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-header">
+                <h3>⚙️ Table Settings</h3>
+            </div>
+            <div class="settings-controls">
+                <label>
+                    <input type="checkbox" id="uppercaseHeader" checked>
+                    Uppercase Headers
+                </label>
+                <label>
+                    <input type="checkbox" id="roundedCorners" checked>
+                    Rounded Corners
+                </label>
+                <label>
+                    <input type="checkbox" id="striped" checked>
+                    Striped Rows
+                </label>
+                <label>
+                    <input type="checkbox" id="sortable" checked>
+                    Enable Column Sorting
+                </label>
+                <label>
+                    Max Rows to Display:
+                    <input type="number" id="maxRows" value="100" min="1">
+                </label>
+            </div>
+        </div>
+
+        <div id="table-container" class="table-container"></div>
+    </div>
 
     <script>
-        // Function to fetch JSON data
-        async function fetchData() {
-            const response = await fetch('data.json'); // Load the JSON file
-            const data = await response.json(); // Parse the JSON data
-            return data;
+        let currentData = null;
+        let currentHeaders = [];
+
+        // Parse JSON input
+        function parseJSON(jsonString) {
+            try {
+                const data = JSON.parse(jsonString);
+                return data;
+            } catch (error) {
+                showError(`Invalid JSON: ${error.message}`);
+                return null;
+            }
         }
 
-        // Function to create the table
-        function createTable(data) {
+        // Extract headers from data
+        function extractHeaders(data) {
+            if (Array.isArray(data)) {
+                if (data.length === 0) return [];
+                if (typeof data[0] === 'object') {
+                    return Object.keys(data[0]);
+                }
+                return ['Value'];
+            } else if (typeof data === 'object') {
+                return Object.keys(data);
+            }
+            return [];
+        }
+
+        // Normalize data to array of objects
+        function normalizeData(data) {
+            if (Array.isArray(data)) {
+                return data.map(item => {
+                    if (typeof item === 'object') {
+                        return item;
+                    }
+                    return { Value: item };
+                });
+            } else if (typeof data === 'object') {
+                return [data];
+            }
+            return [];
+        }
+
+        // Flatten nested objects
+        function flattenObject(obj, prefix = '') {
+            let flattened = {};
+            for (let key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    const value = obj[key];
+                    const newKey = prefix ? `${prefix}.${key}` : key;
+                    
+                    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                        Object.assign(flattened, flattenObject(value, newKey));
+                    } else if (Array.isArray(value)) {
+                        flattened[newKey] = JSON.stringify(value);
+                    } else {
+                        flattened[newKey] = value;
+                    }
+                }
+            }
+            return flattened;
+        }
+
+        // Create table
+        function createTable(data, headers) {
             const table = document.createElement('table');
-            if (data.tableSettings.roundedCorners) {
+            const maxRows = parseInt(document.getElementById('maxRows').value);
+            
+            if (document.getElementById('roundedCorners').checked) {
                 table.classList.add('rounded-corners');
+            }
+            if (document.getElementById('striped').checked) {
+                table.classList.add('striped');
             }
 
             // Create header row
+            const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
-            data.headers.forEach(headerText => {
+            headers.forEach((header, index) => {
                 const th = document.createElement('th');
-                th.textContent = headerText;
-                if (data.tableSettings.uppercaseHeader) {
-                    th.textContent = headerText.toUpperCase();
+                let headerText = header;
+                
+                if (document.getElementById('uppercaseHeader').checked) {
+                    headerText = headerText.toUpperCase();
                 }
+                
+                th.textContent = headerText;
+                
+                // Add sorting capability
+                if (document.getElementById('sortable').checked) {
+                    th.style.cursor = 'pointer';
+                    th.title = 'Click to sort';
+                    th.addEventListener('click', () => sortTable(table, index));
+                }
+                
                 headerRow.appendChild(th);
             });
-            table.appendChild(headerRow);
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
 
             // Create body rows
-            data.rows.forEach(rowData => {
+            const tbody = document.createElement('tbody');
+            const displayData = data.slice(0, maxRows);
+            
+            displayData.forEach((rowData, rowIndex) => {
                 const row = document.createElement('tr');
-                data.headers.forEach(header => {
+                row.dataset.rowIndex = rowIndex;
+                
+                headers.forEach(header => {
                     const td = document.createElement('td');
-                    td.textContent = rowData[header] || ''; // Use empty string if data is missing
+                    const value = rowData[header];
+                    td.textContent = value !== undefined && value !== null ? String(value) : '-';
                     row.appendChild(td);
                 });
-                table.appendChild(row);
+                
+                tbody.appendChild(row);
             });
+            
+            table.appendChild(tbody);
+
+            // Show info if data was truncated
+            if (data.length > maxRows) {
+                const info = document.createElement('div');
+                info.className = 'info-message';
+                info.textContent = `Showing ${maxRows} of ${data.length} rows. Increase "Max Rows" to see more.`;
+                table.parentNode.insertBefore(info, table.nextSibling);
+            }
 
             return table;
         }
 
-        // Load data and render the table
-        fetchData().then(data => {
-            const tableContainer = document.getElementById('table-container');
-            tableContainer.appendChild(createTable(data));
+        // Sort table by column
+        function sortTable(table, columnIndex) {
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            const isAscending = !table.dataset.sortAscending;
+            
+            rows.sort((a, b) => {
+                const aValue = a.children[columnIndex].textContent;
+                const bValue = b.children[columnIndex].textContent;
+                
+                // Try to sort as numbers if possible
+                const aNum = parseFloat(aValue);
+                const bNum = parseFloat(bValue);
+                
+                if (!isNaN(aNum) && !isNaN(bNum)) {
+                    return isAscending ? aNum - bNum : bNum - aNum;
+                }
+                
+                return isAscending ? 
+                    aValue.localeCompare(bValue) : 
+                    bValue.localeCompare(aValue);
+            });
+            
+            const tbody = table.querySelector('tbody');
+            rows.forEach(row => tbody.appendChild(row));
+            table.dataset.sortAscending = isAscending;
+        }
+
+        // Download as CSV
+        function downloadAsCSV(headers, data) {
+            let csv = headers.join(',') + '\n';
+            
+            data.forEach(row => {
+                const values = headers.map(header => {
+                    const value = row[header];
+                    const stringValue = value !== undefined && value !== null ? String(value) : '';
+                    // Escape quotes and wrap in quotes if contains comma
+                    return stringValue.includes(',') ? `"${stringValue.replace(/"/g, '""')}"` : stringValue;
+                });
+                csv += values.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Visualize button click
+        document.getElementById('visualizeBtn').addEventListener('click', () => {
+            const jsonInput = document.getElementById('jsonInput').value.trim();
+            
+            if (!jsonInput) {
+                showError('Please paste JSON data or upload a file');
+                return;
+            }
+
+            const data = parseJSON(jsonInput);
+            if (!data) return;
+
+            // Normalize data
+            let normalizedData = normalizeData(data);
+            
+            // Flatten nested objects
+            normalizedData = normalizedData.map(item => flattenObject(item));
+
+            if (normalizedData.length === 0) {
+                showError('No data to display');
+                return;
+            }
+
+            // Extract headers
+            const headers = extractHeaders(normalizedData);
+            
+            if (headers.length === 0) {
+                showError('Unable to extract headers from data');
+                return;
+            }
+
+            currentData = normalizedData;
+            currentHeaders = headers;
+
+            // Clear previous table
+            const container = document.getElementById('table-container');
+            container.innerHTML = '';
+
+            // Create and render table
+            const table = createTable(normalizedData, headers);
+            container.appendChild(table);
+
+            // Show download button
+            document.getElementById('downloadBtn').style.display = 'inline-block';
+
+            showSuccess(`✓ Successfully visualized ${normalizedData.length} rows with ${headers.length} columns`);
+        });
+
+        // File upload handler
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    document.getElementById('jsonInput').value = event.target.result;
+                    document.getElementById('visualizeBtn').click();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Clear button
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('table-container').innerHTML = '';
+            document.getElementById('downloadBtn').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        });
+
+        // Download button
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            if (currentData && currentHeaders.length > 0) {
+                downloadAsCSV(currentHeaders, currentData);
+                showSuccess('✓ CSV downloaded successfully');
+            }
+        });
+
+        // Re-render table when settings change
+        document.querySelectorAll('.settings-controls input').forEach(input => {
+            input.addEventListener('change', () => {
+                if (currentData && currentHeaders.length > 0) {
+                    const container = document.getElementById('table-container');
+                    container.innerHTML = '';
+                    const table = createTable(currentData, currentHeaders);
+                    container.appendChild(table);
+                }
+            });
+        });
+
+        // Load example data on page load
+        window.addEventListener('load', () => {
+            showSuccess('👋 Ready to visualize! Paste JSON or upload a file.');
         });
     </script>
 </body>
