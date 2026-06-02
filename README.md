@@ -3,7 +3,7 @@ Simple json data visualized in table form
 
 
 ## 📊 Dynamic Product Table with JSON and CSS 🎨
-
+[visualize json data](https://khade217.github.io/-visualize-json-data/ "json-preview ")
 ---
 
 > **This project demonstrates how to create a **dynamic HTML table** using **JSON data** and **CSS styling**. The table is generated dynamically based on the JSON file, and the styling is applied using a separate CSS file. Perfect for displaying product data or any tabular information!** 🚀
