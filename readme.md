@@ -79,7 +79,6 @@ Open the `index.html` file in your browser to view the table. 🖥️
 ## 📸 Screenshot
 
 ![Table Screenshot](https://via.placeholder.com/800x400.png?text=Dynamic+Product+Table+Screenshot)  
-*(Replace this with an actual screenshot of your table)*
 
 ---
 
