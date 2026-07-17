@@ -112,25 +112,8 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 
 ---
 
-Made with ❤️ by [Your Name](https://github.com/your-username).  
+Made with ❤️ by [Dvibe Studio.](https://github.com/khada217).  
 Feel free to reach out if you have any questions! 📧
 
 ---
 
-### Emojis Used:
-- 📊: Table
-- 🎨: Styling
-- 🚀: Launch/Features
-- 🛠️: Tools/Features
-- 📂: Folder Structure
-- 🖥️: Computer/Screen
-- 🧑‍💻: Developer
-- 📸: Screenshot
-- 🤝: Contributing
-- 📄: License
-- 🙏: Credits
-- ❤️: Love
-
----
-
-This README is designed to be visually appealing and informative. You can replace placeholders (like `your-username` or `your-repo-name`) with your actual GitHub details. Add a screenshot of your table for a more professional look! 📷
